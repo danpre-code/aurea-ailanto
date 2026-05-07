@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ailanto per Aurea | Tokenizzazione dell’Energia Rinnovabile</title>
+  <style>
+    :root {
+      /* Palette ricavata dal PDF della pagina Aurea: azzurro, navy, bianco, grigi chiari */
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #071f2d;
+      --muted: #647482;
+      --line: rgba(7, 31, 45, 0.12);
+      --aurea-blue: #82b7e8;
+      --aurea-blue-2: #a9cff1;
+      --soft-blue: #e9f4ff;
+      --soft-gray: #f3f5f7;
+      --navy: #001f33;
+      --navy-2: #063650;
+      --radius: 28px;
+      --shadow: 0 22px 70px rgba(0, 31, 51, 0.12);
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(130, 183, 232, 0.34), transparent 25rem),
+        radial-gradient(circle at 92% 4%, rgba(0, 31, 51, 0.16), transparent 31rem),
+        linear-gradient(180deg, #ffffff 0%, var(--bg) 58%, #eaf3fb 100%);
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--aurea-blue), var(--navy));
+      z-index: 50;
+    }
+
+    header {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(calc(100% - 32px), var(--max));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border: 1px solid rgba(255,255,255,0.75);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 12px 40px rgba(0, 31, 51, 0.08);
+      z-index: 40;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 760;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: conic-gradient(from 190deg, var(--navy), var(--aurea-blue), #d7ecff, var(--navy));
+      box-shadow: inset 0 0 0 5px rgba(255,255,255,0.65);
+    }
+
+    nav { display: flex; gap: 8px; align-items: center; }
+
+    nav a {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 8px 10px;
+      border-radius: 999px;
+      transition: 180ms ease;
+    }
+
+    nav a:hover, nav a.active {
+      color: var(--ink);
+      background: rgba(130, 183, 232, 0.18);
+    }
+
+    .cta-small {
+      background: var(--navy);
+      color: #fff;
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    main { position: relative; }
+
+    section {
+      width: min(calc(100% - 40px), var(--max));
+      margin: 0 auto;
+      padding: 96px 0;
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.04fr 0.96fr;
+      gap: 52px;
+      align-items: center;
+      padding-top: 140px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--navy);
+      font-weight: 720;
+      font-size: 13px;
+      background: rgba(255,255,255,0.72);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--aurea-blue);
+      box-shadow: 0 0 0 5px rgba(130, 183, 232, 0.18);
+    }
+
+    .logo-row {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 28px 0 6px;
+    }
+
+    .logo-card {
+      min-height: 54px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.78);
+      box-shadow: 0 10px 28px rgba(0, 31, 51, 0.06);
+    }
+
+    .logo-card.dark {
+      background: var(--navy);
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    .logo-card img {
+      display: block;
+      max-height: 28px;
+      max-width: 164px;
+      object-fit: contain;
+    }
+
+    .logo-card.ailanto img {
+      max-height: 24px;
+      max-width: 145px;
+    }
+
+    .byline {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 660;
+    }
+
+    h1 {
+      margin: 24px 0 18px;
+      font-size: clamp(52px, 7.5vw, 96px);
+      line-height: 0.91;
+      letter-spacing: -0.075em;
+    }
+
+    h1 span { color: var(--aurea-blue); text-shadow: 0 1px 0 rgba(0,31,51,0.05); }
+
+    .lead {
+      color: var(--muted);
+      font-size: clamp(19px, 2.2vw, 25px);
+      line-height: 1.45;
+      max-width: 760px;
+      margin: 0 0 30px;
+    }
+
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 18px;
+      border-radius: 999px;
+      font-weight: 740;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.72);
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,31,51,0.10); }
+    .btn.primary { background: var(--navy); color: white; border-color: var(--navy); }
+
+    .hero-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(233,244,255,0.64));
+      border: 1px solid rgba(255,255,255,0.84);
+      border-radius: calc(var(--radius) + 10px);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: -35% -20% auto auto;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(130,183,232,0.34), transparent 64%);
+    }
+
+    .energy-visual {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      border-radius: 34px;
+      background:
+        linear-gradient(135deg, rgba(130,183,232,0.26), transparent),
+        linear-gradient(180deg, #ffffff, #e9f4ff);
+      border: 1px solid var(--line);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    .sun {
+      width: 152px;
+      height: 152px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 35%, #ffffff 0%, #a9cff1 42%, #82b7e8 100%);
+      box-shadow: 0 0 0 34px rgba(130,183,232,0.16), 0 0 0 78px rgba(130,183,232,0.08);
+    }
+
+    .orbit {
+      position: absolute;
+      width: 78%;
+      height: 78%;
+      border: 1px dashed rgba(0,31,51,0.28);
+      border-radius: 50%;
+      animation: spin 34s linear infinite;
+    }
+
+    .orbit::before, .orbit::after {
+      content: "kWh";
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: var(--navy);
+      color: #fff;
+      font-weight: 760;
+      box-shadow: 0 14px 35px rgba(0,31,51,0.22);
+    }
+
+    .orbit::before { top: 18%; left: -10px; }
+    .orbit::after { bottom: 13%; right: 0; background: var(--aurea-blue); color: var(--ink); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .metric-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; position: relative; }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 16px;
+      background: rgba(255,255,255,0.72);
+    }
+
+    .metric strong { display: block; font-size: 23px; letter-spacing: -0.04em; margin-bottom: 4px; }
+    .metric span { color: var(--muted); font-size: 12px; }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 44px;
+      align-items: end;
+      margin-bottom: 36px;
+    }
+
+    h2 {
+      font-size: clamp(38px, 5vw, 64px);
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+      margin: 12px 0 0;
+    }
+
+    .section-head p, .section-copy { color: var(--muted); font-size: 18px; line-height: 1.6; margin: 0; }
+
+    .card {
+      background: rgba(255,255,255,0.76);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 10px 40px rgba(0,31,51,0.055);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card h3 { margin: 18px 0 10px; font-size: 23px; letter-spacing: -0.035em; }
+    .card p, .card li { color: var(--muted); line-height: 1.55; font-size: 15.5px; }
+
+    .icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: rgba(130,183,232,0.20);
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    .problem-solution { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .split-card { min-height: 390px; display: flex; flex-direction: column; justify-content: space-between; }
+    .split-card.dark { background: linear-gradient(145deg, var(--navy), var(--navy-2)); color: white; }
+    .split-card.dark p, .split-card.dark li { color: rgba(255,255,255,0.76); }
+
+    ul.clean { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 12px; }
+    ul.clean li { display: flex; gap: 10px; align-items: flex-start; }
+    ul.clean li::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--aurea-blue);
+      margin-top: 8px;
+    }
+
+    .platform { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 26px; align-items: center; }
+
+    .phone {
+      width: min(100%, 370px);
+      margin: 0 auto;
+      border-radius: 42px;
+      padding: 16px;
+      background: var(--navy);
+      box-shadow: 0 28px 80px rgba(0,31,51,0.24);
+    }
+
+    .screen {
+      border-radius: 30px;
+      background: linear-gradient(180deg, #ffffff, #e9f4ff);
+      padding: 22px;
+      min-height: 610px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .screen-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(130,183,232,0.20);
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 720;
+    }
+
+    .wallet-balance { margin: 26px 0; }
+    .wallet-balance span { color: var(--muted); font-size: 13px; }
+    .wallet-balance strong { display: block; font-size: 48px; letter-spacing: -0.07em; margin-top: 3px; }
+
+    .bar { height: 12px; background: rgba(0,31,51,0.09); border-radius: 999px; overflow: hidden; margin: 12px 0 4px; }
+    .bar i { display: block; height: 100%; width: 68%; background: linear-gradient(90deg, var(--navy), var(--aurea-blue)); border-radius: inherit; }
+
+    .mini-list { display: grid; gap: 10px; margin-top: 26px; }
+
+    .mini-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.68);
+      font-size: 14px;
+    }
+
+    .mini-item b { color: var(--navy); }
+
+
+    .tx-link {
+      color: var(--navy);
+      font-weight: 800;
+      text-decoration: none;
+      animation: txPulse 1.9s ease-in-out infinite;
+    }
+
+    .tx-link:hover { text-decoration: underline; }
+
+    @keyframes txPulse {
+      0%, 100% { opacity: 1; text-shadow: 0 0 0 rgba(130,183,232,0); }
+      50% { opacity: 0.42; text-shadow: 0 0 12px rgba(130,183,232,0.55); }
+    }
+
+    .modules { display: grid; gap: 14px; }
+
+    .module {
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(255,255,255,0.70);
+    }
+
+    .module h3 { margin: 0 0 6px; font-size: 20px; letter-spacing: -0.03em; }
+    .module p { margin: 0; color: var(--muted); line-height: 1.5; }
+
+    .token-stack { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+    .token {
+      min-height: 260px;
+      border-radius: 30px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.76);
+      transition: 180ms ease;
+    }
+
+    .token:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+    .token:nth-child(2) { background: rgba(130,183,232,0.18); }
+    .token:nth-child(3) { background: rgba(233,244,255,0.92); }
+    .token:nth-child(4) { background: rgba(0,31,51,0.07); }
+
+    .token-num {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--navy);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .token h3 { margin: 0; font-size: 22px; letter-spacing: -0.04em; }
+    .token p { color: var(--muted); line-height: 1.55; margin: 0; }
+
+    .use-cases { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .use-case {
+      border-radius: 30px;
+      padding: 28px;
+      min-height: 270px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.76);
+    }
+
+    .use-case .label {
+      color: var(--navy);
+      font-weight: 800;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .use-case h3 { margin: 14px 0 10px; font-size: 28px; letter-spacing: -0.05em; }
+    .use-case p { color: var(--muted); line-height: 1.55; }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border: 1px solid var(--line);
+      border-radius: 34px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.76);
+    }
+
+    .phase { padding: 28px; border-right: 1px solid var(--line); min-height: 320px; }
+    .phase:last-child { border-right: none; }
+    .phase small { color: var(--navy); font-weight: 800; }
+    .phase h3 { font-size: 24px; letter-spacing: -0.04em; margin: 14px 0 10px; }
+    .phase p { color: var(--muted); line-height: 1.55; }
+
+    .compliance { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .warning {
+      background: linear-gradient(145deg, rgba(255,255,255,0.86), rgba(233,244,255,0.72));
+      border: 1px solid rgba(130,183,232,0.46);
+    }
+
+    .final { padding-bottom: 120px; }
+
+    .final-panel {
+      border-radius: 42px;
+      padding: clamp(34px, 7vw, 80px);
+      background: linear-gradient(145deg, var(--navy), var(--navy-2));
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .final-panel::after {
+      content: "";
+      position: absolute;
+      right: -140px;
+      top: -160px;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(130,183,232,0.36), transparent 70%);
+    }
+
+    .final-panel h2 { max-width: 850px; }
+    .final-panel p { color: rgba(255,255,255,0.78); font-size: 20px; line-height: 1.55; max-width: 760px; }
+
+    .final-panel .eyebrow {
+      color: #fff;
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    .quote {
+      margin-top: 36px;
+      padding: 28px;
+      border-left: 4px solid var(--aurea-blue);
+      background: rgba(255,255,255,0.08);
+      border-radius: 0 24px 24px 0;
+      font-size: clamp(24px, 3vw, 38px);
+      line-height: 1.12;
+      letter-spacing: -0.05em;
+      max-width: 850px;
+    }
+
+    footer {
+      width: min(calc(100% - 40px), var(--max));
+      margin: 0 auto 28px;
+      color: var(--muted);
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      border-top: 1px solid var(--line);
+      padding-top: 18px;
+    }
+
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity 700ms ease, transform 700ms ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 980px) {
+      nav { display: none; }
+      .hero, .section-head, .platform, .problem-solution, .compliance { grid-template-columns: 1fr; }
+      .token-stack, .timeline { grid-template-columns: 1fr 1fr; }
+      .phase:nth-child(2) { border-right: none; }
+      .phase { border-bottom: 1px solid var(--line); }
+      .phase:nth-child(3), .phase:nth-child(4) { border-bottom: none; }
+    }
+
+    @media (max-width: 640px) {
+      section { width: min(calc(100% - 24px), var(--max)); padding: 70px 0; }
+      header { top: 10px; width: calc(100% - 20px); }
+      .brand span { display: none; }
+      .hero { padding-top: 116px; gap: 30px; }
+      .metric-row, .token-stack, .use-cases, .timeline { grid-template-columns: 1fr; }
+      .phase, .phase:nth-child(2), .phase:nth-child(3) { border-right: none; border-bottom: 1px solid var(--line); }
+      .phase:last-child { border-bottom: none; }
+      .screen { min-height: auto; }
+      footer { flex-direction: column; }
+    }
+
+    @media print {
+      header, .progress, .hero-actions { display: none; }
+      body { background: #fff; }
+      section { page-break-inside: avoid; padding: 36px 0; }
+      .card, .hero-card, .final-panel { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+
+  <header>
+    <a href="#top" class="brand" aria-label="Torna all’inizio">
+      <span class="brand-mark"></span>
+      <span>Ailanto per Aurea</span>
+    </a>
+    <nav aria-label="Navigazione principale">
+      <a href="#problema">Problema</a>
+      <a href="#piattaforma">Piattaforma</a>
+      <a href="#token">Token</a>
+      <a href="#usecase">Use case</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#compliance">Compliance</a>
+    </nav>
+    <a href="#finale" class="cta-small">Sintesi</a>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="reveal">
+        <div class="eyebrow"><span class="dot"></span> Whitepaper commerciale · Presentazione one-page</div>
+        <div class="logo-row" aria-label="Loghi del progetto">
+          <div class="logo-card dark"><img src="https://ailanto.io/staging/wp-content/uploads/2026/05/Screenshot-2026-05-07-alle-09.39.02.png" alt="Aurea Energia" /></div>
+          <span class="byline">progetto sviluppato con</span>
+          <a class="logo-card ailanto" href="https://www.ailanto.io" target="_blank" rel="noopener noreferrer" aria-label="Visita il sito Ailanto"><img src="https://www.ailanto.io/wp-content/uploads/2025/04/logo-nero.png" alt="Ailanto" /></a>
+        </div>
+        <h1>Tokenizzare <span>l’energia</span> rinnovabile.</h1>
+        <p class="lead">Un’infrastruttura digitale per rendere il fotovoltaico da remoto più leggibile, tracciabile e valorizzabile per clienti privati, imprese e partner ESG.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#problema">Leggi la proposta</a>
+          <a class="btn" href="https://ailanto.io/staging/wp-content/uploads/2026/05/Presentazione-Ailanto-2025-it-IT.pdf" target="_blank" rel="noopener">Presentazione Ailanto Srl</a>
+        </div>
+      </div>
+
+      <div class="hero-card reveal">
+        <div class="energy-visual" aria-label="Visualizzazione astratta di energia tokenizzata">
+          <div class="orbit"></div>
+          <div class="sun"></div>
+        </div>
+        <div class="metric-row">
+          <div class="metric"><strong>kWh</strong><span>unità misurabile</span></div>
+          <div class="metric"><strong>GO</strong><span>origine green</span></div>
+          <div class="metric"><strong>ESG</strong><span>prova digitale</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="problema">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> 01 · Scenario</div>
+          <h2>Il cliente non compra solo energia. Compra fiducia.</h2>
+        </div>
+        <p>Il fotovoltaico da remoto semplifica l’accesso all’energia rinnovabile. La tokenizzazione aggiunge un livello ulteriore: rende visibile, verificabile e comunicabile ciò che il cliente ha acquistato e utilizzato.</p>
+      </div>
+
+      <div class="problem-solution reveal">
+        <article class="card split-card">
+          <div>
+            <div class="icon">?</div>
+            <h3>Il problema commerciale</h3>
+            <p>Energia green, pacchetti kWh e compensazioni sono concetti solidi ma ancora astratti per molti clienti.</p>
+            <ul class="clean">
+              <li>Il cliente vuole capire cosa ha acquistato.</li>
+              <li>L’impresa vuole documentare il valore ESG.</li>
+              <li>Il partner vuole un modello scalabile e verificabile.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="card split-card dark">
+          <div>
+            <div class="icon">✓</div>
+            <h3>La risposta proposta</h3>
+            <p>Un wallet energetico digitale che rappresenta pacchetti, kWh, garanzie d’origine, report ESG e compensazioni in modo semplice e controllato.</p>
+            <ul class="clean">
+              <li>Più trasparenza per i clienti.</li>
+              <li>Più valore per le imprese.</li>
+              <li>Più differenziazione per Aurea.</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="piattaforma">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> 02 · Piattaforma</div>
+          <h2>Aurea Energy Wallet.</h2>
+        </div>
+        <p>Una presentazione digitale one-page per trasformare il pacchetto energia in un asset visualizzabile: non una crypto speculativa, ma uno strumento di rappresentazione, tracciabilità e servizio.</p>
+      </div>
+
+      <div class="platform reveal">
+        <div class="phone">
+          <div class="screen">
+            <div class="screen-top">
+              <strong>Energy Wallet</strong>
+              <span class="pill"><span class="dot"></span> Attivo</span>
+            </div>
+            <div class="wallet-balance">
+              <span>Pacchetto annuale residuo</span>
+              <strong>3.840 kWh</strong>
+              <div class="bar"><i></i></div>
+              <span>68% disponibile · aggiornamento mensile</span>
+            </div>
+            <div class="mini-list">
+              <div class="mini-item"><span>Energia consumata</span><b>1.805 kWh</b></div>
+              <div class="mini-item"><span>Quota green certificata</span><b>100%</b></div>
+              <div class="mini-item"><span>Compensazione stimata</span><b>€ 126</b></div>
+              <div class="mini-item"><span>Report ESG</span><b>Pronto</b></div>
+              <div class="mini-item"><span>Certificazione Blockchain</span><b><a class="tx-link" href="https://polygonscan.com/tx/0x780165cb265305657952a5fa999923c26a0ee2c578361125399ce2d932f6e330" target="_blank" rel="noopener noreferrer">TX ID</a></b></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modules">
+          <div class="module"><div class="icon">01</div><div><h3>Energy Asset Registry</h3><p>Registro dei pacchetti energetici, dei kWh assegnati, consumati, residui e compensati.</p></div></div>
+          <div class="module"><div class="icon">02</div><div><h3>Green Proof Layer</h3><p>Collegamento tra pacchetto, garanzie d’origine, documentazione e attestazioni digitali.</p></div></div>
+          <div class="module"><div class="icon">03</div><div><h3>ESG Reporting Engine</h3><p>Reportistica per aziende, multi-sede, audit, comunicazione ambientale e stakeholder.</p></div></div>
+          <div class="module"><div class="icon">04</div><div><h3>Blockchain Audit Layer</h3><p>L'architettura ibrida ad alte prestazioni sviluppata da Ailanto per registrare, sintetizzare e notarizzare le evidenze energetiche rilevanti. I dati sensibili restano in ambiente controllato; le prove verificabili vengono pubblicate tramite hash, in modo efficiente, immutabile e con valore legale.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="token">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> 03 · Cosa si tokenizza</div>
+          <h2>Quattro livelli. Un solo obiettivo: prova del valore.</h2>
+        </div>
+        <p>Il token non deve essere presentato come investimento. Può essere una rappresentazione digitale controllata di diritti d’uso, dati energetici, attestazioni green e vantaggi di community.</p>
+      </div>
+
+      <div class="token-stack reveal">
+        <article class="token"><div class="token-num">1</div><div><h3>kWh Token</h3><p>Rappresenta i kWh inclusi nel pacchetto contrattuale e il loro stato nel tempo.</p></div></article>
+        <article class="token"><div class="token-num">2</div><div><h3>Green Proof</h3><p>Collega energia, garanzie d’origine e documentazione verificabile.</p></div></article>
+        <article class="token"><div class="token-num">3</div><div><h3>ESG Badge</h3><p>Genera attestazioni per imprese, negozi, uffici e programmi corporate.</p></div></article>
+        <article class="token"><div class="token-num">4</div><div><h3>Loyalty Layer</h3><p>Abilita referral, premi, community e iniziative territoriali in fase successiva.</p></div></article>
+      </div>
+    </section>
+
+    <section id="usecase">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> 04 · Use case</div>
+          <h2>Dalla casa al corporate ESG.</h2>
+        </div>
+        <p>La stessa infrastruttura può servire clienti diversi, con livelli di complessità progressivi: semplicità per i privati, documentazione per le aziende, scalabilità per i partner.</p>
+      </div>
+
+      <div class="use-cases reveal">
+        <article class="use-case"><div class="label">Privati</div><h3>Fotovoltaico senza tetto.</h3><p>Il cliente vede nel wallet i kWh acquistati, quelli consumati, la quota residua, la provenienza green e la compensazione associata.</p></article>
+        <article class="use-case"><div class="label">PMI</div><h3>Energia come prova reputazionale.</h3><p>Negozi, laboratori e uffici possono scaricare report annuali e attestazioni digitali per comunicare la propria scelta energetica.</p></article>
+        <article class="use-case"><div class="label">Corporate</div><h3>Vista multi-sede.</h3><p>Le aziende possono aggregare pacchetti, consumi, documenti e impatto stimato in un’unica dashboard ESG.</p></article>
+        <article class="use-case"><div class="label">Mobilità elettrica</div><h3>Ricarica green tracciabile.</h3><p>Pacchetti dedicati alla ricarica EV possono essere collegati a kWh utilizzati, stima km equivalenti e badge green.</p></article>
+      </div>
+    </section>
+
+    <section id="roadmap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> 05 · Roadmap</div>
+          <h2>Un percorso graduale, non una fuga in avanti.</h2>
+        </div>
+        <p>La proposta è costruita per ridurre rischio tecnico, legale e commerciale. Prima si valida il valore per il cliente, poi si introduce la blockchain dove serve davvero.</p>
+      </div>
+
+      <div class="timeline reveal">
+        <article class="phase"><small>Fase 0 · 4–6 settimane</small><h3>Analisi preliminare</h3><p>Legal memo, token design, mappatura contratti, dati disponibili, privacy, architettura MVP.</p></article>
+        <article class="phase"><small>Fase 1 · 3–4 mesi</small><h3>MVP commerciale</h3><p>Wallet cliente, pacchetto kWh, consumi, compensazione, report PDF, registro interno.</p></article>
+        <article class="phase"><small>Fase 2 · 2–3 mesi</small><h3>Notarizzazione</h3><p>Hash dei report, timestamp, attestati verificabili e dashboard ESG business.</p></article>
+        <article class="phase"><small>Fase 3 · 6–12 mesi</small><h3>Community layer</h3><p>Loyalty, referral, programmi corporate, partner mobility, API e marketplace controllato.</p></article>
+      </div>
+    </section>
+
+    <section id="compliance">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> 06 · Compliance</div>
+          <h2>Design non speculativo.</h2>
+        </div>
+        <p>Il punto chiave è evitare che il token venga percepito come prodotto finanziario. La prima versione deve essere uno strumento di servizio, non un asset da trading.</p>
+      </div>
+
+      <div class="compliance reveal">
+        <article class="card warning"><div class="icon">!</div><h3>Da evitare</h3><ul class="clean"><li>Promessa di rendimento.</li><li>Mercato secondario libero.</li><li>Messaggi da criptovaluta speculativa.</li><li>Ambiguità tra credito d’uso e investimento.</li></ul></article>
+        <article class="card"><div class="icon">✓</div><h3>Da privilegiare</h3><ul class="clean"><li>Credito digitale collegato al contratto energetico.</li><li>Trasferibilità assente o fortemente controllata.</li><li>Dashboard chiara per cliente e impresa.</li><li>Review legale prima di qualsiasi emissione effettiva.</li></ul></article>
+      </div>
+    </section>
+
+    <section id="finale" class="final">
+      <div class="final-panel reveal">
+        <div class="logo-row" aria-label="Ailanto per Aurea">
+          <div class="logo-card dark"><img src="https://ailanto.io/staging/wp-content/uploads/2026/05/Screenshot-2026-05-07-alle-09.39.02.png" alt="Aurea Energia" /></div>
+          <span class="byline" style="color: rgba(255,255,255,0.72);">con il supporto tecnologico di</span>
+          <a class="logo-card ailanto" href="https://www.ailanto.io" target="_blank" rel="noopener noreferrer" aria-label="Visita il sito Ailanto"><img src="https://www.ailanto.io/wp-content/uploads/2025/04/logo-nero.png" alt="Ailanto" /></a>
+        </div>
+        <div class="eyebrow"><span class="dot"></span> Sintesi strategica</div>
+        <h2>Dal pacchetto energia al portafoglio energetico digitale.</h2>
+        <p>Aurea può posizionarsi non solo come operatore di energia green da remoto, ma come piattaforma capace di trasformare energia, dati e sostenibilità in valore verificabile.</p>
+        <div class="quote">La tokenizzazione non sostituisce il modello Aurea. Lo rende più leggibile, più credibile e più scalabile.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Documento commerciale preliminare · uso interno / presentazione partner</span>
+    <span>Ailanto per Aurea · Aurea Green Proof Platform · presentazione one-page</span>
+  </footer>
+
+  <script>
+    const progress = document.getElementById('progress');
+    const navLinks = [...document.querySelectorAll('nav a')];
+    const sections = navLinks.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+    const reveals = document.querySelectorAll('.reveal');
+
+    function updateProgress() {
+      const scrollTop = window.scrollY;
+      const height = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = height > 0 ? (scrollTop / height) * 100 : 0;
+      progress.style.width = pct + '%';
+    }
+
+    function updateActiveNav() {
+      let current = sections[0]?.id;
+      for (const section of sections) {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= 150) current = section.id;
+      }
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+      });
+    }
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.16 });
+
+    reveals.forEach(el => observer.observe(el));
+    window.addEventListener('scroll', () => { updateProgress(); updateActiveNav(); }, { passive: true });
+    updateProgress();
+    updateActiveNav();
+  </script>
+</body>
+</html>
